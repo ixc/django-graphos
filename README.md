@@ -3,6 +3,14 @@ Graphos
 
 [![Build Status](https://travis-ci.org/agiliq/django-graphos.png)](https://travis-ci.org/agiliq/django-graphos)
 
+________________
+
+Forked from https://github.com/agiliq/django-graphos, to fix compatibility issues with Django 3.2.
+Only difference is that it fixes `ImportError: cannot import name 'six' from 'django.utils'` by importing the package six.
+
+________________
+
+
 Graphos is a Django app to normalize data to create beautiful charts. It provides a JS agnostic way to work with charts and allows seamless and quick switching between different chart providers.
 
 * Demo: [http://agiliq.com/demo/graphos/](http://agiliq.com/demo/graphos/).

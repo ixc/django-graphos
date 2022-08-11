@@ -4,8 +4,9 @@ import json
 import uuid
 import random
 import string
+import six
 
-from django.utils import six, timezone
+from django.utils import timezone
 from django.utils.encoding import force_text
 from django.utils.functional import Promise
 from django.db.models.query import QuerySet
@@ -19,26 +20,27 @@ DB_PORT = 27017
 
 def get_random_string():
     random_letter = lambda: random.choice(string.ascii_letters)
-    random_string = "".join([random_letter()
-                             for el in range(10)])
+    random_string = "".join([random_letter() for el in range(10)])
     return random_string
 
 
 def get_default_options(graph_type="lines"):
-    """ default options """
-    options = {"series": {"%s" % graph_type: {"show": "true"}},
-               "legend": {"position": 'ne'},
-               "title": "Chart"}
+    """default options"""
+    options = {
+        "series": {"%s" % graph_type: {"show": "true"}},
+        "legend": {"position": "ne"},
+        "title": "Chart",
+    }
     return options
 
 
 def get_db(db_name=None):
-    """ GetDB - simple function to wrap getting a database
+    """GetDB - simple function to wrap getting a database
     connection from the connection pool.
     """
     import pymongo
-    return pymongo.Connection(host=DB_HOST,
-                              port=DB_PORT)[db_name]
+
+    return pymongo.Connection(host=DB_HOST, port=DB_PORT)[db_name]
 
 
 class JSONEncoderForHTML(json.JSONEncoder):
@@ -48,6 +50,7 @@ class JSONEncoderForHTML(json.JSONEncoder):
     with the usual entities (e.g. &amp;) because they are not expanded
     within <script> tags.
     """
+
     def default(self, obj):
         # Taken from https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/utils/encoders.py
         # For Date Time string spec, see ECMA 262
@@ -56,8 +59,8 @@ class JSONEncoderForHTML(json.JSONEncoder):
             return force_text(obj)
         elif isinstance(obj, datetime.datetime):
             representation = obj.isoformat()
-            if representation.endswith('+00:00'):
-                representation = representation[:-6] + 'Z'
+            if representation.endswith("+00:00"):
+                representation = representation[:-6] + "Z"
             return representation
         elif isinstance(obj, datetime.date):
             return obj.isoformat()
@@ -77,28 +80,27 @@ class JSONEncoderForHTML(json.JSONEncoder):
             return tuple(obj)
         elif isinstance(obj, six.binary_type):
             # Best-effort for binary blobs. See #4187.
-            return obj.decode('utf-8')
-        elif hasattr(obj, 'tolist'):
+            return obj.decode("utf-8")
+        elif hasattr(obj, "tolist"):
             # Numpy arrays and array scalars.
             return obj.tolist()
-        elif hasattr(obj, '__getitem__'):
+        elif hasattr(obj, "__getitem__"):
             try:
                 return dict(obj)
             except:
                 pass
-        elif hasattr(obj, '__iter__'):
+        elif hasattr(obj, "__iter__"):
             return tuple(item for item in obj)
         return super(JSONEncoderForHTML, self).default(obj)
-
 
     def encode(self, o):
         # Override JSONEncoder.encode because it has hacks for
         # performance that make things more complicated.
         chunks = self.iterencode(o, True)
         if self.ensure_ascii:
-            return ''.join(chunks)
+            return "".join(chunks)
         else:
-            return u''.join(chunks)
+            return "".join(chunks)
 
     def iterencode(self, o, _one_shot=False):
         try:
@@ -107,7 +109,7 @@ class JSONEncoderForHTML(json.JSONEncoder):
             # for python 2.6 compatibility
             chunks = super(JSONEncoderForHTML, self).iterencode(o)
         for chunk in chunks:
-            chunk = chunk.replace('&', '&amp;')
-            chunk = chunk.replace('<', '&lt;')
-            chunk = chunk.replace('>', '&gt;')
+            chunk = chunk.replace("&", "&amp;")
+            chunk = chunk.replace("<", "&lt;")
+            chunk = chunk.replace(">", "&gt;")
             yield chunk
